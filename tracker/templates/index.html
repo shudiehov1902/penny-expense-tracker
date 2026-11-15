@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="penny-token" content="{{ token }}">
+  <meta name="theme-color" content="#f6f7f3">
+  <title>Penny — Personal expense tracker</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%232c5948'/%3E%3Ctext x='20' y='45' font-family='sans-serif' font-size='44' fill='%23e8f4c5'%3Ep%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="/" aria-label="Penny home"><span class="brand-mark">p<span>·</span></span><span>penny<span class="brand-dot">.</span></span></a>
+    <div class="workspace-label">PERSONAL WORKSPACE</div>
+    <nav aria-label="Main navigation">
+      <a class="nav-link active" href="#overview"><span class="nav-icon">▦</span> Overview <span class="nav-dot"></span></a>
+      <a class="nav-link" href="#transactions"><span class="nav-icon">⇄</span> Transactions</a>
+      <button class="nav-link" id="sidebar-budget"><span class="nav-icon">◉</span> Monthly budget</button>
+    </nav>
+    <div class="sidebar-note"><span class="note-illustration">↗</span><h3>A little clarity.<br>A better month.</h3><p>Track the everyday.<br>Make room for what matters.</p></div>
+    <div class="profile"><span class="avatar">V</span><div><strong>Personal account</strong><small>Local workspace · EUR</small></div><span class="profile-dot" title="Data is stored on this computer"></span></div>
+  </aside>
+  <main id="overview">
+    <header class="topbar"><div class="breadcrumb">Workspace <span>/</span> <strong>Overview</strong></div><span class="local-badge"><span></span> Stored on your device</span></header>
+    <div class="content">
+      <section class="page-heading"><div><div class="eyebrow">YOUR MONEY, IN FOCUS</div><h1>Small expenses.<br class="mobile-break"> Clearer picture.</h1><p>A simple place to keep your everyday spending in check.</p></div><button class="button primary" id="add-expense"><span>＋</span> Add expense</button></section>
+      <section class="period-bar" aria-label="Reporting period"><div class="month-picker"><button class="icon-button" id="previous-month" aria-label="Previous month">‹</button><label class="month-label"><span id="month-title">Loading…</span><input type="month" id="month" aria-label="Choose month"></label><button class="icon-button" id="next-month" aria-label="Next month">›</button></div><span class="period-detail">Monthly overview <span>·</span> EUR</span></section>
+      <div id="load-error" class="error-banner" role="alert" hidden></div>
+      <section class="summary-grid" aria-label="Monthly summary">
+        <article class="summary-card spent-card"><div class="card-label">Total spent <span>↗</span></div><div class="metric" id="total-spent">€0.00</div><div class="metric-detail" id="spent-detail">Across 0 transactions this month</div></article>
+        <article class="summary-card"><div class="card-label">Monthly budget <button class="text-button" id="edit-budget">Set budget ↗</button></div><div class="metric" id="budget-value">Not set</div><div class="budget-track"><span id="budget-progress"></span></div><div class="metric-detail" id="budget-detail">Give your spending a little direction.</div></article>
+        <article class="summary-card remaining-card"><div class="card-label" id="remaining-label">Left to spend <span>↙</span></div><div class="metric" id="remaining-value">—</div><div class="metric-detail" id="remaining-detail">Set a monthly budget to see your balance.</div><span class="card-decoration" aria-hidden="true">✳</span></article>
+      </section>
+      <section class="insights-grid" aria-label="Spending insights">
+        <article class="panel activity-panel"><div class="panel-heading"><div><h2>Spending activity</h2><p>Your daily expenses at a glance</p></div><span class="chart-legend"><i></i> Daily total</span></div><div class="chart-area" id="activity-chart" role="img" aria-label="Daily expenses chart"></div><div class="chart-axis"><span>01</span><span id="axis-middle">15</span><span id="axis-last">30</span></div></article>
+        <article class="panel category-panel"><div class="panel-heading"><div><h2>By category</h2><p>Where your money goes</p></div><span class="subtle-icon">◌</span></div><div id="category-breakdown" class="category-breakdown"></div></article>
+      </section>
+      <section class="panel transactions-panel" id="transactions"><div class="panel-heading transactions-heading"><div><h2>Transactions <span class="count-badge" id="transaction-count">0</span></h2><p>Every little thing, all in one place.</p></div><a class="button secondary small" id="export" href="/api/export">↓ <span>Export CSV</span></a></div><div class="filter-bar"><label class="search-field"><span aria-hidden="true">⌕</span><input type="search" id="search" placeholder="Search category or note…" aria-label="Search expenses"></label><select id="category-filter" aria-label="Filter by category"><option value="">All categories</option></select><select id="sort" aria-label="Sort expenses"><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="highest">Highest amount</option><option value="lowest">Lowest amount</option></select></div><div class="table-scroll"><table><thead><tr><th>EXPENSE / NOTE</th><th>CATEGORY</th><th>DATE</th><th class="amount-column">AMOUNT</th><th><span class="sr-only">Actions</span></th></tr></thead><tbody id="expense-rows"></tbody></table></div><div id="empty-state" class="empty-state" hidden><span>↗</span><h3>No expenses yet</h3><p>Add your first expense to start seeing the bigger picture.</p><button class="button secondary" id="empty-add">＋ Add an expense</button></div><footer class="table-footer"><span id="table-count">0 transactions</span><span>All amounts in EUR</span></footer></section>
+      <footer class="page-footer"><span>penny. <span>A little more mindful.</span></span><span>Made for your everyday.</span></footer>
+    </div>
+  </main>
+  <dialog id="expense-dialog"><form id="expense-form"><div class="dialog-heading"><div><div class="eyebrow">THE EVERYDAY DETAILS</div><h2 id="expense-title">Add expense</h2></div><button type="button" class="icon-button close-dialog" aria-label="Close expense form">×</button></div><label>Amount <span class="input-money"><span>€</span><input name="amount" id="amount" type="number" step="0.01" min="0.01" max="9999999.99" placeholder="0.00" required></span></label><div class="form-grid"><label>Category<input name="category" id="expense-category" list="categories" maxlength="60" placeholder="Choose or type…" required></label><label>Date<input name="spent_on" id="expense-date" type="date" required></label></div><datalist id="categories"></datalist><label>Note <span class="optional">optional</span><input name="note" id="expense-note" maxlength="240" placeholder="What was it for?"></label><p class="form-error" id="expense-error" role="alert"></p><div class="dialog-footer"><button type="button" class="button secondary close-dialog">Cancel</button><button class="button primary" id="save-expense">Save expense</button></div></form></dialog>
+  <dialog id="budget-dialog"><form id="budget-form"><div class="dialog-heading"><div><div class="eyebrow" id="budget-month-label">MONTHLY PLAN</div><h2>Set your budget</h2></div><button type="button" class="icon-button close-dialog" aria-label="Close budget form">×</button></div><p class="dialog-description">Choose an amount that works for you. This budget applies to the selected month.</p><label>Monthly budget <span class="input-money"><span>€</span><input name="amount" id="budget-amount" type="number" min="0.01" step="0.01" max="9999999.99" placeholder="e.g. 1000.00"></span></label><p class="form-error" id="budget-error" role="alert"></p><div class="dialog-footer budget-footer"><button type="button" id="remove-budget" class="text-button danger">Remove budget</button><button class="button primary">Save budget</button></div></form></dialog>
+  <dialog id="delete-dialog"><form id="delete-form"><div class="dialog-heading"><h2>Delete this expense?</h2><button type="button" class="icon-button close-dialog" aria-label="Cancel deletion">×</button></div><p class="dialog-description" id="delete-description"></p><p class="form-error" id="delete-error" role="alert"></p><div class="dialog-footer"><button type="button" class="button secondary close-dialog">Keep expense</button><button class="button delete-button">Delete expense</button></div></form></dialog>
+  <div id="toast" class="toast" role="status" hidden></div>
+</body>
+</html>
